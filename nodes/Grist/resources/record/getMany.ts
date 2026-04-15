@@ -45,20 +45,91 @@ export const recordGetManyDescription: INodeProperties[] = [
       {
         displayName: 'Filter',
         name: 'filter',
-        type: 'string',
-        default: '',
+        placeholder: 'Add Filter',
         description:
-          'JSON object mapping column names to arrays of allowed values. E.g. {"pet": ["cat", "dog"]}.',
-        placeholder: '{"columnName": ["value1", "value2"]}',
+          'Only return rows matching all of the given filters. For complex filters, create a formula column and filter for the value "true".',
+        type: 'fixedCollection',
+        typeOptions: {
+          multipleValues: true,
+        },
+        default: {},
+        options: [
+          {
+            displayName: 'Filter Properties',
+            name: 'filterProperties',
+            values: [
+              {
+                displayName: 'Column Name or ID',
+                name: 'field',
+                type: 'options',
+                typeOptions: {
+                  loadOptionsDependsOn: ['docId', 'tableId'],
+                  loadOptionsMethod: 'getColumns',
+                },
+                default: '',
+                description:
+                  'Column to apply the filter in. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+                required: true,
+              },
+              {
+                displayName: 'Values',
+                name: 'values',
+                type: 'string',
+                default: '',
+                description:
+                  'Comma-separated list of values to search for in the filtered column',
+              },
+            ],
+          },
+        ],
       },
       {
-        displayName: 'Sort',
+        displayName: 'Sort Order',
         name: 'sort',
-        type: 'string',
-        default: '',
-        description:
-          'Comma-separated column names to sort by. Prefix with - for descending. E.g. "name,-age".',
-        placeholder: 'name,-age',
+        placeholder: 'Add Sort Field',
+        type: 'fixedCollection',
+        typeOptions: {
+          multipleValues: true,
+        },
+        default: {},
+        options: [
+          {
+            displayName: 'Sort Properties',
+            name: 'sortProperties',
+            values: [
+              {
+                displayName: 'Column Name or ID',
+                name: 'field',
+                type: 'options',
+                typeOptions: {
+                  loadOptionsDependsOn: ['docId', 'tableId'],
+                  loadOptionsMethod: 'getColumns',
+                },
+                default: '',
+                required: true,
+                description:
+                  'Column to sort on. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+              },
+              {
+                displayName: 'Direction',
+                name: 'direction',
+                type: 'options',
+                options: [
+                  {
+                    name: 'Ascending',
+                    value: 'asc',
+                  },
+                  {
+                    name: 'Descending',
+                    value: 'desc',
+                  },
+                ],
+                default: 'asc',
+                description: 'Direction to sort in',
+              },
+            ],
+          },
+        ],
       },
       {
         displayName: 'Include Hidden Columns',

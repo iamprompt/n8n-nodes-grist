@@ -15,6 +15,11 @@ import {
   tableSelect,
   workspaceSelect,
 } from './shared/descriptions'
+import type {
+  GristFilterProperty,
+  GristGetManyOptions,
+  GristSortProperty,
+} from './types'
 import { gristApiRequest } from './utils/request'
 
 export class Grist implements INodeType {
@@ -86,11 +91,11 @@ export class Grist implements INodeType {
     if (resource === 'record') {
       if (operation === 'getMany') {
         const returnAll = this.getNodeParameter('returnAll', 0) as boolean
-        const options = this.getNodeParameter('options', 0, {}) as {
-          filter?: string
-          sort?: string
-          hidden?: boolean
-        }
+        const options = this.getNodeParameter(
+          'options',
+          0,
+          {},
+        ) as GristGetManyOptions
 
         const qs: Record<string, string | number | boolean> = {}
 
@@ -99,12 +104,30 @@ export class Grist implements INodeType {
           qs.limit = limit
         }
 
-        if (options.filter) {
-          qs.filter = options.filter
+        if (options.filter?.filterProperties?.length) {
+          const parsed = options.filter.filterProperties.reduce<
+            Record<string, Array<string | number>>
+          >((acc, cur: GristFilterProperty) => {
+            acc[cur.field] = acc[cur.field] ?? []
+            const vals = cur.values
+              .split(',')
+              .map((v) => v.trim())
+              .filter(Boolean)
+            for (const v of vals) {
+              const num = Number(v)
+              acc[cur.field].push(!isNaN(num) && v !== '' ? num : v)
+            }
+            return acc
+          }, {})
+          qs.filter = JSON.stringify(parsed)
         }
 
-        if (options.sort) {
-          qs.sort = options.sort
+        if (options.sort?.sortProperties?.length) {
+          qs.sort = options.sort.sortProperties
+            .map((s: GristSortProperty) =>
+              s.direction === 'desc' ? `-${s.field}` : s.field,
+            )
+            .join(',')
         }
 
         if (options.hidden) {

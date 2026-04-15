@@ -91,3 +91,24 @@ export interface GristColumn {
 export interface GristColumnsList {
   columns: GristColumn[]
 }
+
+// Filter / Sort for getMany
+export interface GristFilterProperty {
+  field: string
+  values: string
+}
+
+export interface GristSortProperty {
+  field: string
+  direction: 'asc' | 'desc'
+}
+
+export interface GristGetManyOptions {
+  filter?: {
+    filterProperties: GristFilterProperty[]
+  }
+  sort?: {
+    sortProperties: GristSortProperty[]
+  }
+  hidden?: boolean
+}

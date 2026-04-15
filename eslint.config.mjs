@@ -8,6 +8,7 @@ import unusedImports from 'eslint-plugin-unused-imports'
 import tseslint from 'typescript-eslint'
 
 export default defineConfig(
+  { ignores: ['dist/**', 'node_modules/**'] },
   js.configs.recommended,
   tseslint.configs.recommended,
   {

@@ -1,5 +1,5 @@
 {
-  "node": "n8n-nodes-grist",
+  "node": "@iamprompt/n8n-nodes-grist",
   "nodeVersion": "1.0",
   "codexVersion": "1.0",
   "categories": ["Data & Storage"],

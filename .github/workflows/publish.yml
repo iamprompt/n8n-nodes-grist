@@ -1,0 +1,56 @@
+# Publishes the package to npm on every version tag push (e.g. v0.1.0).
+#
+# Authentication options:
+#   A) Provenance via Trusted Publishers (recommended — no NPM_TOKEN needed):
+#      On npmjs.com → your package → Settings → Publish access → Trusted Publishers,
+#      add a publisher with:
+#        owner:    iamprompt
+#        repo:     n8n-nodes-grist
+#        workflow: publish.yml
+#
+#   B) Traditional npm token (fallback):
+#      Create a Granular Access Token on npmjs.com and store it as NPM_TOKEN in
+#      Settings → Secrets and variables → Actions.
+
+name: Publish to npm
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write  # required for OIDC provenance
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Release (lint → build → publish with provenance)
+        # n8n-node release detects GITHUB_ACTIONS=true and runs:
+        #   pnpm lint && pnpm build && npm publish --provenance
+        run: pnpm run release
+        env:
+          # Required for `npm publish` inside the CLI
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # Enables npm provenance attestation (required by n8n from May 2026)
+          NPM_CONFIG_PROVENANCE: 'true'
+          # Scoped packages default to private — force public publish
+          NPM_CONFIG_ACCESS: 'public'

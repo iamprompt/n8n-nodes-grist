@@ -1,0 +1,3 @@
+# The `files` field in package.json controls what's included (dist/ only).
+# Use this file to exclude files within dist/ that consumers don't need.
+dist/tsconfig.tsbuildinfo

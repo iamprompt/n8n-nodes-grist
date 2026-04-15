@@ -1,11 +1,16 @@
 {
-  "name": "n8n-nodes-grist",
+  "name": "@iamprompt/n8n-nodes-grist",
   "version": "0.1.0",
-  "description": "",
+  "description": "n8n community node for Grist — create, read, update, upsert, and delete records in your Grist spreadsheet-database.",
   "license": "MIT",
-  "homepage": "",
+  "homepage": "https://github.com/iamprompt/n8n-nodes-grist",
   "keywords": [
-    "n8n-community-node-package"
+    "n8n-community-node-package",
+    "grist",
+    "database",
+    "spreadsheet",
+    "no-code",
+    "automation"
   ],
   "author": {
     "name": "Supakarn Laorattanakul",

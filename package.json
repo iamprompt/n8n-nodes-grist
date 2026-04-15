@@ -23,7 +23,8 @@
   "scripts": {
     "build": "n8n-node build",
     "build:watch": "tsc --watch",
-    "dev": "n8n-node dev",
+    "dev": "n8n-node dev --external-n8n",
+    "n8n": "N8N_USER_FOLDER=~/.n8n-node-cli N8N_DEV_RELOAD=true npx n8n@1.76.0 start",
     "lint": "n8n-node lint",
     "lint:fix": "n8n-node lint --fix",
     "release": "n8n-node release",

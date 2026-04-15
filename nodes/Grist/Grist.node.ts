@@ -106,17 +106,46 @@ export class Grist implements INodeType {
 
         if (options.filter?.filterProperties?.length) {
           const parsed = options.filter.filterProperties.reduce<
-            Record<string, Array<string | number>>
+            Record<string, Array<string | number | boolean>>
           >((acc, cur: GristFilterProperty) => {
             acc[cur.field] = acc[cur.field] ?? []
-            const vals = cur.values
-              .split(',')
-              .map((v) => v.trim())
-              .filter(Boolean)
-            for (const v of vals) {
-              const num = Number(v)
-              acc[cur.field].push(!isNaN(num) && v !== '' ? num : v)
+
+            let vals: (string | number | boolean)[] = []
+
+            if (typeof cur.values === 'string') {
+              vals = cur.values
+                .split(',')
+                .map((v) => v.trim())
+                .filter((v) => v !== '')
             }
+
+            if (Array.isArray(cur.values)) {
+              vals = cur.values.filter((v) => v !== null && v !== undefined)
+            }
+
+            if (typeof cur.values === 'boolean') {
+              vals = [cur.values]
+            }
+            const valueSet = new Set<string | number | boolean>()
+            for (const v of vals) {
+              valueSet.add(v)
+              if (typeof v === 'string') {
+                const trimmed = v.trim()
+                if (trimmed === '') continue
+
+                // Try number coercion
+                const num = Number(trimmed)
+                if (!isNaN(num)) {
+                  valueSet.add(num)
+                }
+
+                // Try boolean coercion
+                const lower = trimmed.toLowerCase()
+                if (lower === 'true') valueSet.add(true)
+                if (lower === 'false') valueSet.add(false)
+              }
+            }
+            acc[cur.field].push(...Array.from(valueSet))
             return acc
           }, {})
           qs.filter = JSON.stringify(parsed)

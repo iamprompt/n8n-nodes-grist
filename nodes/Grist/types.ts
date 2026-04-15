@@ -95,7 +95,7 @@ export interface GristColumnsList {
 // Filter / Sort for getMany
 export interface GristFilterProperty {
   field: string
-  values: string
+  values: string | string[] | boolean
 }
 
 export interface GristSortProperty {

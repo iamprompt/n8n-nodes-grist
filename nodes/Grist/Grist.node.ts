@@ -3,6 +3,7 @@ import {
   type INodeExecutionData,
   type INodeType,
   type INodeTypeDescription,
+  JsonObject,
   NodeConnectionTypes,
 } from 'n8n-workflow'
 import { NodeApiError } from 'n8n-workflow'
@@ -177,15 +178,31 @@ export class Grist implements INodeType {
         }>
 
         for (const record of records) {
-          returnData.push({
-            json: { id: record.id, ...record.fields },
-          })
+          if (record && record.fields) {
+            returnData.push({
+              json: { id: record.id, ...record.fields },
+            })
+          }
         }
       }
 
       if (operation === 'create') {
-        const recordsJson = this.getNodeParameter('recordsJson', 0) as string
-        const records = JSON.parse(recordsJson)
+        const recordsJson = this.getNodeParameter('recordsJson', 0)
+        let records = recordsJson
+
+        if (typeof records === 'string') {
+          try {
+            records = JSON.parse(records)
+          } catch (error) {
+            throw new NodeApiError(this.getNode(), error as JsonObject, {
+              message: 'Invalid JSON in Records field',
+            })
+          }
+        }
+
+        if (!Array.isArray(records)) {
+          records = [records]
+        }
 
         const response = await gristApiRequest.call(
           this,
@@ -195,21 +212,27 @@ export class Grist implements INodeType {
           { records },
         )
 
-        returnData.push({ json: response })
+        if (response) {
+          returnData.push({ json: response })
+        }
       }
 
       if (operation === 'update') {
-        const recordsJson = this.getNodeParameter('recordsJson', 0) as string
-        let records: object = []
+        const recordsJson = this.getNodeParameter('recordsJson', 0)
+        let records = recordsJson
 
-        if (Array.isArray(recordsJson)) {
-          records = recordsJson
-        } else {
+        if (typeof records === 'string') {
           try {
-            records = JSON.parse(recordsJson)
+            records = JSON.parse(records)
           } catch (error) {
-            throw new NodeApiError(this.getNode(), error)
+            throw new NodeApiError(this.getNode(), error as JsonObject, {
+              message: 'Invalid JSON in Records field',
+            })
           }
+        }
+
+        if (!Array.isArray(records)) {
+          records = [records]
         }
 
         const response = await gristApiRequest.call(
@@ -220,28 +243,36 @@ export class Grist implements INodeType {
           { records },
         )
 
-        returnData.push({ json: response })
+        if (response) {
+          returnData.push({ json: response })
+        }
       }
 
       if (operation === 'upsert') {
-        const recordsJson = this.getNodeParameter('recordsJson', 0) as string
-        let inputRecords: Array<{
-          where: Record<string, unknown>
-          fields: Record<string, unknown>
-        }>
+        const recordsJson = this.getNodeParameter('recordsJson', 0)
+        let inputRecords = recordsJson
 
-        if (Array.isArray(recordsJson)) {
-          inputRecords = recordsJson
-        } else {
+        if (typeof inputRecords === 'string') {
           try {
-            inputRecords = JSON.parse(recordsJson)
+            inputRecords = JSON.parse(inputRecords)
           } catch (error) {
-            throw new NodeApiError(this.getNode(), error)
+            throw new NodeApiError(this.getNode(), error as JsonObject, {
+              message: 'Invalid JSON in Records field',
+            })
           }
         }
 
+        if (!Array.isArray(inputRecords)) {
+          inputRecords = [inputRecords]
+        }
+
         // Transform {where, fields} → Grist {require, fields}
-        const records = inputRecords.map((r) => ({
+        const records = (
+          inputRecords as unknown as {
+            where: Record<string, unknown>
+            fields: Record<string, unknown>
+          }[]
+        ).map((r) => ({
           require: r.where,
           fields: r.fields,
         }))
@@ -272,7 +303,9 @@ export class Grist implements INodeType {
           { records },
         )
 
-        returnData.push({ json: response })
+        if (response) {
+          returnData.push({ json: response })
+        }
       }
 
       if (operation === 'delete') {

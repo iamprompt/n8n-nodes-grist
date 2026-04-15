@@ -53,8 +53,12 @@ export async function gristApiRequest(
   }
 
   try {
-    return await this.helpers.httpRequest(options)
+    const response = await this.helpers.httpRequest(options)
+    return response ?? {}
   } catch (error) {
-    throw new NodeApiError(this.getNode(), error as JsonObject)
+    throw new NodeApiError(
+      this.getNode(),
+      (error as JsonObject) || { message: 'Unknown error' },
+    )
   }
 }

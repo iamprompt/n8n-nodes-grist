@@ -1,6 +1,6 @@
 {
   "name": "@iamprompt/n8n-nodes-grist",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "n8n community node for Grist — create, read, update, upsert, and delete records in your Grist spreadsheet-database.",
   "license": "MIT",
   "homepage": "https://github.com/iamprompt/n8n-nodes-grist",

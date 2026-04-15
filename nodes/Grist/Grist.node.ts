@@ -5,6 +5,7 @@ import {
   type INodeTypeDescription,
   NodeConnectionTypes,
 } from 'n8n-workflow'
+import { NodeApiError } from 'n8n-workflow'
 
 import * as listSearch from './methods/listSearch'
 import { loadOptions } from './methods/loadOptions'
@@ -199,7 +200,17 @@ export class Grist implements INodeType {
 
       if (operation === 'update') {
         const recordsJson = this.getNodeParameter('recordsJson', 0) as string
-        const records = JSON.parse(recordsJson)
+        let records: object = []
+
+        if (Array.isArray(recordsJson)) {
+          records = recordsJson
+        } else {
+          try {
+            records = JSON.parse(recordsJson)
+          } catch (error) {
+            throw new NodeApiError(this.getNode(), error)
+          }
+        }
 
         const response = await gristApiRequest.call(
           this,
@@ -214,10 +225,20 @@ export class Grist implements INodeType {
 
       if (operation === 'upsert') {
         const recordsJson = this.getNodeParameter('recordsJson', 0) as string
-        const inputRecords = JSON.parse(recordsJson) as Array<{
+        let inputRecords: Array<{
           where: Record<string, unknown>
           fields: Record<string, unknown>
         }>
+
+        if (Array.isArray(recordsJson)) {
+          inputRecords = recordsJson
+        } else {
+          try {
+            inputRecords = JSON.parse(recordsJson)
+          } catch (error) {
+            throw new NodeApiError(this.getNode(), error)
+          }
+        }
 
         // Transform {where, fields} → Grist {require, fields}
         const records = inputRecords.map((r) => ({

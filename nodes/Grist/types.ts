@@ -1,12 +1,10 @@
 // Credentials
-
 export interface GristCredentials {
   apiKey: string
   selfHostedUrl: string
 }
 
 // Users
-
 export interface GristUser {
   id: number
   name: string
@@ -14,7 +12,6 @@ export interface GristUser {
 }
 
 // Organizations
-
 export interface GristOrg {
   id: number
   name: string
@@ -26,7 +23,6 @@ export interface GristOrg {
 }
 
 // Workspaces
-
 export interface GristWorkspace {
   id: number
   name: string
@@ -46,7 +42,6 @@ export interface GristWorkspaceWithOrg extends GristWorkspace {
 }
 
 // Documents
-
 export interface GristDoc {
   id: string
   name: string
@@ -60,7 +55,6 @@ export interface GristDocWithWorkspace extends GristDoc {
 }
 
 // Tables
-
 export interface GristTableFields {
   tableRef?: number
   onDemand?: boolean
@@ -76,7 +70,6 @@ export interface GristTablesList {
 }
 
 // Columns
-
 export interface GristColumnFields {
   label?: string
   type?: string
